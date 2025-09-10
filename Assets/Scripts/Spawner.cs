@@ -3,25 +3,52 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
+    [SerializeField] private ClickReader _clickReader;
+    [SerializeField] private Exploder _exploder;
     [SerializeField] private CubeFactory _cubeFactory;
     [SerializeField] private float _spawnRadius = 3f;
     [SerializeField] private int _minSpawnCount = 2;
     [SerializeField] private int _maxSpawnCount = 6;
 
-    public List<Rigidbody> SpawnCubes(CubeInfo clickedCube)
+    private void OnEnable()
+    {
+        _clickReader.CubeClicked += HandleCubeClicked;
+    }
+
+    private void OnDisable()
+    {
+        _clickReader.CubeClicked -= HandleCubeClicked;
+    }
+
+    private void HandleCubeClicked(Cube clickedCube)
+    {
+        if (CanSpawnCubes(clickedCube.SpawnChance))
+        {
+            _exploder.Explode(clickedCube, SpawnCubes(clickedCube));
+        }
+
+        Destroy(clickedCube.gameObject);
+    }
+
+    private List<Rigidbody> SpawnCubes(Cube clickedCube)
     {
         int spawnCount = CalculateSpawnCount();
 
         List<Rigidbody> targets = new List<Rigidbody>();
 
-        List<Vector3> spawnPositions = GetSpawnPositions(clickedCube, spawnCount);
+        for (int i = 0; i < spawnCount; i++)
+        {
+            Vector3 newPosition = CalculateSpawnPosition(clickedCube);
 
-        for (int i = 0; i < spawnCount; i++) 
-        { 
-        targets.Add(_cubeFactory.Create(spawnPositions[i], clickedCube));            
+            targets.Add(_cubeFactory.Create(newPosition, clickedCube));
         }
 
         return targets;
+    }
+
+    private bool CanSpawnCubes(float chance)
+    {
+        return Random.value <= chance;
     }
 
     private int CalculateSpawnCount()
@@ -29,21 +56,7 @@ public class Spawner : MonoBehaviour
         return UnityEngine.Random.Range(_minSpawnCount, _maxSpawnCount + 1);
     }
 
-    private List<Vector3> GetSpawnPositions(CubeInfo clickedCube, int count) 
-    {
-        List<Vector3> positions = new List<Vector3>();
-
-        for (int i=0; i<count; i++)
-        {
-            Vector3 newPosition = CalculateSpawnPosition(clickedCube);
-            
-           positions.Add(newPosition);
-        }
-
-        return positions;
-    }
-
-    private Vector3 CalculateSpawnPosition(CubeInfo clickedCube)
+    private Vector3 CalculateSpawnPosition(Cube clickedCube)
     {
         Vector3 position = UnityEngine.Random.onUnitSphere * _spawnRadius;
 

@@ -5,28 +5,26 @@ public class CubeFactory : MonoBehaviour
     private float _scaleDecrease = 2f;
     private float _spawnChanceDecreace = 2f;
 
-    public Rigidbody Create(Vector3 position, CubeInfo cubeInfo)
+    public Rigidbody Create(Vector3 position, Cube cubeInfo)
     {
-        CubeInfo newCubeInfo = Object.Instantiate(cubeInfo, position, Quaternion.identity);
+        Cube newCube = Object.Instantiate(cubeInfo, position, Quaternion.identity);
 
-        SetColor(newCubeInfo);
-        
-        newCubeInfo.SetSpawnChance(CalculateSpawnChance(newCubeInfo.SpawnChance));
+        newCube.Initialize(_spawnChanceDecreace, _scaleDecrease, SetColor());
 
-        newCubeInfo.transform.localScale /= _scaleDecrease;
+        if (newCube.TryGetComponent(out Rigidbody rigidbody))
+        {
+            return rigidbody;
+        }
+        else
+        {
+            return null;
+        }
+    }      
 
-        return newCubeInfo.GetComponent<Rigidbody>();
-    }
-
-    private void SetColor(CubeInfo cubeInfo)
+    private Color SetColor()
     {
         Color newColor = Random.ColorHSV();
 
-        cubeInfo.GetComponent<Renderer>().material.color = newColor;
-    }
-
-    private float CalculateSpawnChance(float chance)
-    {
-        return chance / _spawnChanceDecreace;
+        return newColor;
     }
 }
