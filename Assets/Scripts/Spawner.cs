@@ -2,8 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Spawner : MonoBehaviour
-{
-    [SerializeField] private ClickReader _clickReader;
+{    
     [SerializeField] private Exploder _exploder;
     [SerializeField] private CubeFactory _cubeFactory;
     [SerializeField] private float _spawnRadius = 3f;
@@ -12,12 +11,18 @@ public class Spawner : MonoBehaviour
 
     private void OnEnable()
     {
-        _clickReader.CubeClicked += HandleCubeClicked;
+        if (FindObjectOfType<Raycaster>() != null)
+        {
+            FindObjectOfType<Raycaster>().CubeSelected += HandleCubeClicked;
+        }
     }
 
     private void OnDisable()
     {
-        _clickReader.CubeClicked -= HandleCubeClicked;
+        if (FindObjectOfType<Raycaster>() != null)
+        {
+            FindObjectOfType<Raycaster>().CubeSelected -= HandleCubeClicked;
+        }
     }
 
     private void HandleCubeClicked(Cube clickedCube)
@@ -26,8 +31,12 @@ public class Spawner : MonoBehaviour
         {
             _exploder.Explode(clickedCube, SpawnCubes(clickedCube));
         }
+        else
+        {
+            _exploder.Explode(clickedCube);
+        }
 
-        Destroy(clickedCube.gameObject);
+            Destroy(clickedCube.gameObject);
     }
 
     private List<Rigidbody> SpawnCubes(Cube clickedCube)

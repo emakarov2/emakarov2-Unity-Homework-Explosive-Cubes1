@@ -1,23 +1,35 @@
 using UnityEngine;
 
-public class Raycaster
+public class Raycaster : MonoBehaviour
 {
-    public bool TryGetClickedCube(out Cube result)
-    {
-        result = null;
+    public event System.Action<Cube> CubeSelected;
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+    private void OnEnable()
+    {
+        if (FindObjectOfType<ClickReader>() != null)
+        {
+            FindObjectOfType<ClickReader>().ClickAccepted += TryGetCube;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (FindObjectOfType<ClickReader>() != null)
+        {
+            FindObjectOfType<ClickReader>().ClickAccepted -= TryGetCube;
+        }
+    }
+
+    private void TryGetCube(Vector2 position)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(position);
 
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             if (hit.collider.TryGetComponent(out Cube cube))
             {
-                result = cube;
-
-                return true;
+                CubeSelected?.Invoke(cube);
             }
         }
-
-        return false;
     }
 }

@@ -8,9 +8,41 @@ public class Exploder : MonoBehaviour
 
     public void Explode(Cube explosiveCube, List<Rigidbody> targets)
     {
-        foreach (Rigidbody target in targets) 
+        AddExplosionForceToGroup(_explosionForce, explosiveCube.transform.position, _explosionRadius, targets);
+    }
+
+    public void Explode(Cube explosiveCube) 
+    {
+        float radius = _explosionRadius * explosiveCube.ExplodeModifer;
+        float force = _explosionForce * explosiveCube.ExplodeModifer;
+
+        List<Rigidbody> targets = GetTargets(explosiveCube.transform.position, radius);
+
+        AddExplosionForceToGroup(force, explosiveCube.transform.position, radius, targets);
+    }
+
+    private void AddExplosionForceToGroup(float force, Vector3 center, float radius, List<Rigidbody> targets)
+    {
+        foreach (Rigidbody target in targets)
         {
-            target.AddExplosionForce(_explosionForce, explosiveCube.transform.position, _explosionRadius);
+            target.AddExplosionForce(force, center, radius);
         }
+    }
+
+    private List<Rigidbody> GetTargets(Vector3 center, float radius)
+    {
+        Collider[] targetColliders = Physics.OverlapSphere(center, radius);
+
+        List<Rigidbody> targetRigidbodies = new();
+
+        foreach (Collider collider in targetColliders)
+        {
+            if (collider.attachedRigidbody != null)
+            {
+                targetRigidbodies.Add(collider.attachedRigidbody);
+            }
+        }
+
+        return targetRigidbodies;
     }
 }

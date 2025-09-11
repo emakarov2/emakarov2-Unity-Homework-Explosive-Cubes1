@@ -2,20 +2,17 @@ using UnityEngine;
 
 public class ClickReader : MonoBehaviour
 {
-    private const int LeftMouseButtonNumber = 0;
+    private const int CkickNumber = 0;
 
-    private Raycaster _raycaster = new Raycaster();
+    public event System.Action<Vector2> ClickAccepted;
 
-    public event System.Action<Cube> CubeClicked;
-
-   private void Update()
+    private void Update()
     {
-        if (Input.GetMouseButtonDown(LeftMouseButtonNumber))
+        if (Input.GetMouseButtonDown(CkickNumber))
         {
-            if (_raycaster.TryGetClickedCube(out Cube result)) 
-            { 
-            CubeClicked?.Invoke(result);                
-            }
+            Vector2 clickPosition = Input.mousePosition;
+
+            ClickAccepted?.Invoke(clickPosition);
         }
     }
 }
