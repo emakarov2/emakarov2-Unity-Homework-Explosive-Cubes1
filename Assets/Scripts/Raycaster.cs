@@ -2,22 +2,18 @@ using UnityEngine;
 
 public class Raycaster : MonoBehaviour
 {
+    [SerializeField] private ClickReader _clickReader;
+
     public event System.Action<Cube> CubeSelected;
 
     private void OnEnable()
     {
-        if (FindObjectOfType<ClickReader>() != null)
-        {
-            FindObjectOfType<ClickReader>().ClickAccepted += TryGetCube;
-        }
+        _clickReader.ClickAccepted += TryGetCube;
     }
 
     private void OnDisable()
     {
-        if (FindObjectOfType<ClickReader>() != null)
-        {
-            FindObjectOfType<ClickReader>().ClickAccepted -= TryGetCube;
-        }
+        _clickReader.ClickAccepted -= TryGetCube;
     }
 
     private void TryGetCube(Vector2 position)
